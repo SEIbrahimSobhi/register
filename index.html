@@ -17,13 +17,17 @@
 <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 
   <style>
-/* متغيرات جذرية */
+/* ===================================
+   متغيرات جذرية
+=================================== */
 :root {
   --card-width: 300px;
   --card-widtha: min(90vw, 400px);
 }
 
-/* إعادة التهيئة الأساسية */
+/* ===================================
+   إعادة التهيئة الأساسية
+=================================== */
 * {
   margin: 0;
   padding: 0;
@@ -38,7 +42,9 @@ body {
   overflow-x: hidden;
 }
 
-/* إشعار النجاح/الخطأ */
+/* ===================================
+   إشعار النجاح/الخطأ (Notifications)
+=================================== */
 .notification-center {
   position: fixed;
   top: 50%;
@@ -141,18 +147,23 @@ body {
   color: #ef4444;
 }
 
-/* طبقة التعتيم على الصورة */
-.overlay {
+/* ===================================
+   طبقة التعتيم على الصورة (Overlay)
+   - تُضاف على كلٍ من صور الموبايل والديسكتوب
+=================================== */
+.mobile-image-container::after,
+.desktop-image-container::after {
+  content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.15);
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4); /* طبقة داكنة */
   pointer-events: none;
+  z-index: 1; /* أعلى الصورة */
 }
 
-/* صورة الموبايل (للشاشات الصغيرة فقط) */
+/* ===================================
+   صورة الموبايل (للشاشات الصغيرة)
+=================================== */
 .mobile-image-container {
   position: relative;
   text-align: center;
@@ -161,12 +172,13 @@ body {
 
 .mobile-image-container img {
   width: 100%;
-  max-width: 999px;
   height: 345px;
   object-fit: cover;
   object-position: top;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 0; /* لكي تظهر الطبقة فوق الصورة */
 }
 
 /* إخفاء صورة الموبايل على الشاشات الكبيرة */
@@ -176,7 +188,9 @@ body {
   }
 }
 
-/* صورة الديسكتوب (للشاشات الكبيرة فقط) */
+/* ===================================
+   صورة الديسكتوب (للشاشات الكبيرة)
+=================================== */
 .desktop-image-container {
   position: relative;
   display: none;
@@ -192,16 +206,23 @@ body {
     width: 100%;
     height: 145vh;
     object-fit: cover;
+    position: relative;
+    z-index: 0;
   }
 }
 
-/* الحاوية الرئيسية للشاشات الكبيرة: تقسيم الصفحة إلى عمودين */
+/* ===================================
+   الحاوية الرئيسية (للكمبيوتر)
+   تقسيم الصفحة إلى عمودين
+=================================== */
 .main-desktop {
   display: flex;
   min-height: 100vh;
 }
 
-/* قسم النموذج */
+/* ===================================
+   قسم النموذج (Form)
+=================================== */
 .form-container {
   width: 100%;
   padding: 20px;
@@ -220,6 +241,9 @@ body {
   margin: 0;
 }
 
+/* ===================================
+   رأس النموذج (العنوان + النص)
+=================================== */
 .form-header {
   text-align: center;
   margin-bottom: 30px;
@@ -243,7 +267,9 @@ body {
   color: #ccc;
 }
 
-/* تقسيم الحقول في صفوف */
+/* ===================================
+   الحقول
+=================================== */
 .row {
   display: flex;
   gap: 10px;
@@ -265,12 +291,12 @@ body {
   margin-bottom: 10px;
 }
 
-/* تصميم الحقول بخط سفلي وتأثير حركة عند التركيز */
+/* تصميم الحقول (خط سفلي + حركة عند التركيز) */
 .form-control,
 .governorate-select {
   width: 100%;
   padding: 12px;
-  padding-right: 40px;
+  padding-right: 50px; /* زيادة المسافة لمنع التصاق النص بالأيقونة */
   background: transparent;
   border: none;
   border-bottom: 1px solid #555;
@@ -292,10 +318,10 @@ body {
   color: transparent;
 }
 
-/* التسمية العائمة */
+/* التسمية العائمة (Label) */
 .form-label {
   position: absolute;
-  right: 40px;
+  right: 50px; /* موازاة مع الـ padding-right */
   top: 50%;
   transform: translateY(-50%);
   transition: all 0.2s ease;
@@ -317,7 +343,7 @@ body {
 /* أيقونات الحقول */
 .form-icon {
   position: absolute;
-  right: 0;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
   color: #aaa;
@@ -332,7 +358,9 @@ body {
   transform: translateY(-55%);
 }
 
-/* إعدادات القائمة المنسدلة للمحافظات */
+/* ===================================
+   القائمة المنسدلة (Select) للمحافظات
+=================================== */
 .governorate-select-wrapper {
   position: relative;
   margin: 1rem 0;
@@ -341,7 +369,7 @@ body {
 
 .governorate-select {
   width: 100%;
-  padding: 12px 40px 12px 15px;
+  padding: 12px 50px 12px 15px;
   border: 2px solid #374151;
   border-radius: 8px;
   background-color: #111827;
@@ -356,10 +384,20 @@ body {
   direction: rtl;
 }
 
-/* إصلاح مشكلة التسمية العائمة للقائمة */
+/* تحسين شكل زر "اختر محافظة" */
+.governorate-select:hover {
+  border-color: #3b82f6;
+}
+
+.governorate-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  transform: none;
+}
+
 .governorate-select-wrapper .form-label {
   position: absolute;
-  right: 40px;
+  right: 50px;
   top: 50%;
   transform: translateY(-50%);
   color: #9ca3af;
@@ -377,14 +415,7 @@ body {
   background: linear-gradient(to bottom, #111827 50%, transparent 50%);
 }
 
-/* إصلاح موضع الأيقونة للقائمة */
-.governorate-select-wrapper .form-icon {
-  left: auto;
-  right: 15px;
-  color: #6b7280;
-}
-
-/* إصلاح سهم الاختيار للقائمة */
+/* سهم الاختيار */
 .governorate-select-wrapper::after {
   content: '';
   position: absolute;
@@ -397,14 +428,7 @@ body {
   transition: transform 0.3s ease;
 }
 
-/* توافق مع التصميم الأصلي عند التركيز */
-.governorate-select:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-  transform: none;
-}
-
-/* تخصيص شريط التمرير للقائمة */
+/* شريط التمرير */
 .governorate-select::-webkit-scrollbar {
   width: 8px;
 }
@@ -442,28 +466,14 @@ body {
   position: relative;
 }
 
-/* تخصيص تمرير القائمة بشكل إضافي */
-.governorate-select::-webkit-scrollbar {
-  width: 10px;
-}
-
-.governorate-select::-webkit-scrollbar-thumb {
-  background: #3b82f6;
-  border-radius: 8px;
-  border: 2px solid #1f2937;
-}
-
-.governorate-select::-webkit-scrollbar-track {
-  background: #1f2937;
-  border-radius: 8px;
-}
-
 .governorate-select option:focus {
   outline: 2px solid #60a5fa;
   outline-offset: 2px;
 }
 
-/* زر "طلب إنشاء حساب" */
+/* ===================================
+   الأزرار (إنشاء حساب / فيديو)
+=================================== */
 .submit-btn {
   width: 180px;
   padding: 16px 0;
@@ -496,7 +506,6 @@ body {
   transform: translateY(0);
 }
 
-/* زر الفيديو */
 .video-btn {
   width: 180px;
   padding: 16px 0;
@@ -526,7 +535,7 @@ body {
   transform: translateY(0);
 }
 
-/* تأثير الإضاءة الداخلية على الأزرار */
+/* تأثير الإضاءة الداخلية للأزرار */
 .submit-btn::before,
 .video-btn::before {
   content: '';
@@ -548,7 +557,9 @@ body {
   border-color: #f59e0b;
 }
 
-/* رابط تسجيل الدخول */
+/* ===================================
+   رابط تسجيل الدخول
+=================================== */
 .login-link {
   text-align: center;
   margin-top: 20px;
@@ -566,7 +577,9 @@ body {
   cursor: pointer;
 }
 
-/* تذييل الصفحة */
+/* ===================================
+   تذييل الصفحة (Footer)
+=================================== */
 footer {
   text-align: center;
   padding: 10px;
@@ -576,41 +589,86 @@ footer {
   margin-top: 20px;
 }
 
-/* ========================================================
-   التعديلات الخاصة بالشاشات الصغيرة
-   - عرض الحقول تحت بعضها
-   - تكبير حجم النموذج والعناصر ليكون العرض واضحًا
-======================================================== */
+/* ===================================
+   تحسينات للشاشات الصغيرة (أقل من 768px)
+   بدون تغيير على الشاشات الكبيرة
+=================================== */
 @media (max-width: 768px) {
-  /* جعل القسم الرئيسي عمودي على الموبايل */
+  /* جعل القسم الرئيسي عمودي */
   .main-desktop {
     flex-direction: column;
   }
 
-  /* ترتيب الحقول في صفوف لتظهر عموديًا */
+  /* جعل صورة الموبايل أصغر قليلاً وتوضع أعلى الصفحة */
+  .mobile-image-container {
+    margin: 10px auto;
+  }
+  .mobile-image-container img {
+    height: 250px; /* تصغير ارتفاع الصورة */
+    border-radius: 8px;
+  }
+
+  /* الحقول تحت بعضها */
   .row {
     flex-direction: column;
     gap: 15px;
   }
 
-  /* تكبير حجم الحاوية وتوسيطها */
+  /* تكبير حجم حاوية النموذج وتوسيطها */
   .form-container {
     width: 90%;
     margin: 20px auto;
     padding: 20px;
   }
 
-  /* تكبير حجم الحقول لتحسين القراءة والتفاعل */
-  .form-control,
-  .governorate-select {
-    font-size: 16px;
-    padding: 14px;
+  /* تقليل حجم العنوان والنص أسفل العنوان (كان كبيرًا جدًا) */
+  .form-header h1 {
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
+  .form-header p {
+    font-size: 14px;
   }
 
-  /* جعل أزرار الإجراء بعرض كامل */
+  /* تقليل حجم الحقول قليلاً */
+  .form-control,
+  .governorate-select {
+    font-size: 15px;
+    padding: 12px;
+    padding-right: 50px; /* الحفاظ على مسافة للأيقونة */
+  }
+
+  /* تقليل حجم التسمية العائمة (Label) */
+  .form-label {
+    font-size: 16px;
+  }
+
+  /* الأزرار بعرض كامل مع تقليل حجم الخط */
   .submit-btn,
   .video-btn {
     width: 100%;
+    font-size: 16px;
+    padding: 14px 0;
+  }
+
+  /* تكبير/تصغير رابط تسجيل الدخول */
+  .login-link {
+    font-size: 14px;
+  }
+
+  /* تكبير/تصغير حجم التذييل */
+  footer {
+    font-size: 12px;
+  }
+
+  /* تحسين شكل زر "اختر محافظة" وقائمته */
+  .governorate-select {
+    font-size: 15px;
+    padding: 12px 50px 12px 20px;
+    border-radius: 8px;
+  }
+  .governorate-select-wrapper .form-label {
+    font-size: 14px;
   }
 }
 
@@ -619,7 +677,7 @@ footer {
 <body>
   <!-- صورة الموبايل (للشاشات الصغيرة فقط) -->
   <div class="mobile-image-container">
-    <img src="منصة الرياضيات M r . T a r e k.jpeg" alt="صورة المنصة">
+    <img src="/home/kali/Desktop/منصة-Mr.tarek/assets/img/منصة الرياضيات M r . T a r e k.jpeg" alt="صورة المنصة">
     <div class="overlay"></div>
   </div>
 
@@ -627,7 +685,7 @@ footer {
   <div class="main-desktop">
     <!-- صورة الديسكتوب (للشاشات الكبيرة فقط) -->
     <div class="desktop-image-container">
-      <img src="منصة الرياضيات M r . T a r e k.jpeg" alt="صورة المنصة">
+      <img src="/home/kali/Desktop/منصة-Mr.tarek/assets/img/منصة الرياضيات M r . T a r e k.jpeg" alt="صورة المنصة">
       <div class="overlay"></div>
     </div>
     <!-- قسم النموذج -->
