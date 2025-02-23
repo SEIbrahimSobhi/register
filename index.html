@@ -3,313 +3,623 @@
 <head>
   <meta charset="UTF-8">
   <title>طلب إنشاء حساب</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <!-- استدعاء خط Tajawal من Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
   <!-- استدعاء Font Awesome للأيقونات -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- الأيقونات ونظام الإشعارات -->
+<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
   <style>
-    :root {
-      --card-width: 300px;
-    }
-    /* إعادة تهيئة أساسية */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Tajawal', sans-serif;
-    }
-    body {
-      background-color: #080c14;
-      color: #fff;
-      direction: rtl;
-      overflow-x: hidden;
-    }
-    /* إشعار النجاح/الخطأ */
-    #notification {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 1000;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease-out;
-      width: var(--card-width);
-    }
-    #notification.active {
-      opacity: 1;
-      visibility: visible;
-    }
-    .notification-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(15px);
-      border-radius: 20px;
-      padding: min(5vw, 40px);
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-      transform: scale(0.5) rotate(15deg);
-      animation: cardEntry 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
-    }
-    @keyframes cardEntry {
-      0% { transform: scale(0.5) rotate(15deg); opacity: 0; }
-      60% { transform: scale(1.1) rotate(-5deg); opacity: 1; }
-      100% { transform: scale(1) rotate(0deg); }
-    }
-    /* طبقة التعتيم على الصورة */
-    .overlay {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background-color: rgba(0, 0, 0, 0.15);
-      pointer-events: none;
-    }
-    /* صورة الموبايل (للشاشات الصغيرة فقط) */
-    .mobile-image-container {
-      position: relative;
-      text-align: center;
-      margin: 20px 0;
-    }
-    .mobile-image-container img {
-      width: 100%;
-      max-width: 999px;
-      height: 345px;
-      object-fit: cover;
-      object-position: top;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-    }
-    /* إخفاء صورة الموبايل على الشاشات الكبيرة */
-    @media (min-width: 992px) {
-      .mobile-image-container {
-        display: none;
-      }
-    }
-    /* صورة الديسكتوب (للشاشات الكبيرة فقط) */
-    .desktop-image-container {
-      position: relative;
-      display: none;
-    }
-    @media (min-width: 992px) {
-      .desktop-image-container {
-        display: block;
-        width: 40.33%;
-        position: relative;
-      }
-      .desktop-image-container img {
-        width: 100%;
-        height: 145vh;
-        object-fit: cover;
-      }
-    }
-    /* الحاوية الرئيسية للشاشات الكبيرة: تقسيم الصفحة إلى عمودين */
-    .main-desktop {
-      display: flex;
-      min-height: 100vh;
-    }
-    /* قسم النموذج */
-    .form-container {
-      width: 100%;
-      padding: 20px;
-      margin: 20px;
-    }
-    @media (min-width: 992px) {
-      .form-container {
-        width: 52.67%;
-      }
-    }
-    .form-wrapper {
-      background: transparent;
-      padding: 0;
-      margin: 0;
-    }
-    .form-header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    .form-header h1 {
-      font-size: 26px;
-      margin-bottom: 10px;
-    }
-    .form-header h1 span.white {
-      color: #fff;
-    }
-    .form-header h1 span.blue {
-      color: #3498db;
-    }
-    .form-header p {
-      font-size: 14px;
-      color: #ccc;
-    }
-    /* تقسيم الحقول في صفوف */
-    .row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 25px;
-    }
-    .row .form-group {
-      flex: 1;
-      position: relative;
-    }
-    /* الحقول الكاملة العرض */
-    .form-group {
-      position: relative;
-      margin-bottom: 25px;
-    }
-    /* تصميم الحقول مع خط سفلي فقط وتأثير حركة عند التركيز */
-    .form-control, .governorate-select {
-      width: 100%;
-      padding: 12px;
-      padding-right: 40px;
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid #555;
-      color: #fff;
-      font-size: 14px;
-      outline: none;
-      text-align: right;
-      transition: border-bottom-color 0.3s, transform 0.3s;
-    }
-    .form-control:focus, .governorate-select:focus {
-      border-bottom-color: #3498db;
-      transform: scale(1.02);
-    }
-    .form-control::placeholder, .governorate-select::placeholder {
-      color: transparent;
-    }
-    /* التسمية العائمة */
-    .form-label {
-      position: absolute;
-      right: 40px;
-      top: 50%;
-      transform: translateY(-50%);
-      transition: all 0.2s ease;
-      color: #aaa;
-      pointer-events: none;
-    }
-    .form-control:focus ~ .form-label,
-    .form-control:not(:placeholder-shown) ~ .form-label,
-    .governorate-select:focus ~ .form-label,
-    .governorate-select:not(:placeholder-shown) ~ .form-label {
-      top: 0;
-      transform: translateY(-100%);
-      font-size: 12px;
-      color: #3498db;
-    }
-    /* أيقونات الحقول */
-    .form-icon {
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #aaa;
-      transition: all 0.2s ease;
-      pointer-events: none;
-      font-size: 16px;
-    }
-    .form-control:focus ~ .form-icon,
-    .form-control:not(:placeholder-shown) ~ .form-icon {
-      color: #3498db;
-      transform: translateY(-55%);
-    }
-    /* تصميم زر اختيار المحافظة المحسن */
-    .governorate-select {
-      background-color: #111827;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-    }
-    .governorate-select option {
-      background-color: #111827;
-      color: #fff;
-    }
-    .governorate-select-wrapper {
-      position: relative;
-    }
-    .governorate-select-wrapper::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 10px;
-      transform: translateY(-50%);
-      width: 0;
-      height: 0;
-      border-left: 6px solid #fff;
-      border-top: 6px solid transparent;
-      border-bottom: 6px solid transparent;
-      pointer-events: none;
-    }
-    /* تصميم زر "طلب إنشاء حساب" مع تأثير عند الضغط */
-    .submit-btn {
-      width: 180px;
-      padding: 16px 0;
-      background-color: #007aff;
-      border: 2px solid transparent;
-      border-radius: 5px;
-      font-size: 16px;
-      font-weight: bold;
-      color: #fff;
-      cursor: pointer;
-      transition: background-color 0.3s, border-color 0.3s, transform 0.3s;
-      margin-top: 10px;
-      margin-right: 10px;
-    }
-    .submit-btn:active {
-      border-color: #3498db;
-      color: #3498db;
-      background-color: rgba(0,122,255,0.1);
-    }
-    /* زر "طريقة إنشاء حساب على المنصة" */
-    .video-btn {
-      width: 180px;
-      padding: 16px 0;
-      background-color: #f39c12;
-      border: 2px solid transparent;
-      border-radius: 5px;
-      font-size: 16px;
-      font-weight: bold;
-      color: #fff;
-      cursor: pointer;
-      transition: background-color 0.3s, border-color 0.3s, transform 0.3s;
-      margin-top: 10px;
-    }
-    .video-btn:active {
-      border-color: #f39c12;
-      color: #f39c12;
-      background-color: rgba(243,156,18,0.1);
-    }
-    /* رابط تسجيل الدخول */
-    .login-link {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 14px;
-    }
-    .login-link span {
-      color: #6b7280;
-      margin-right: 5px;
-    }
-    .login-link a {
-      color: #f1c40f;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    footer {
-      text-align: center;
-      padding: 10px;
-      background: transparent;
-      color: #666;
-      font-size: 12px;
-      margin-top: 20px;
-    }
+/* متغيرات جذرية */
+:root {
+  --card-width: 300px;
+  --card-widtha: min(90vw, 400px);
+}
+
+/* إعادة التهيئة الأساسية */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Tajawal', sans-serif;
+}
+
+body {
+  background-color: #080c14;
+  color: #fff;
+  direction: rtl;
+  overflow-x: hidden;
+}
+
+/* إشعار النجاح/الخطأ */
+.notification-center {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem 3rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 1000;
+  text-align: center;
+  min-width: 320px;
+  max-width: 90%;
+  pointer-events: auto;
+  user-select: none;
+  will-change: transform, opacity;
+}
+
+.notification-center.active {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* تحسينات الوصولية */
+.notification-center[aria-hidden="false"] {
+  display: block;
+}
+
+.notification-center[aria-hidden="true"] {
+  display: none;
+}
+
+.notification-icon {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 1.5rem;
+}
+
+.notification-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.notification-icon circle {
+  stroke-dasharray: 188;
+  stroke-dashoffset: 188;
+  transition: stroke-dashoffset 1.2s ease-out;
+}
+
+.notification-icon ion-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  font-size: 2.8rem;
+  opacity: 0;
+  transition: all 0.3s ease-out 0.4s;
+}
+
+.notification-center.active .notification-icon circle {
+  stroke-dashoffset: 0;
+}
+
+.notification-center.active .notification-icon ion-icon {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.notification-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.notification-message {
+  color: #666;
+  font-size: 1.1rem;
+  line-height: 1.4;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* ألوان الإشعارات */
+.notification-success .notification-icon circle {
+  stroke: #22c55e;
+}
+
+.notification-success .notification-icon ion-icon {
+  color: #22c55e;
+}
+
+.notification-error .notification-icon circle {
+  stroke: #ef4444;
+}
+
+.notification-error .notification-icon ion-icon {
+  color: #ef4444;
+}
+
+/* طبقة التعتيم على الصورة */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+}
+
+/* صورة الموبايل (للشاشات الصغيرة فقط) */
+.mobile-image-container {
+  position: relative;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.mobile-image-container img {
+  width: 100%;
+  max-width: 999px;
+  height: 345px;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* إخفاء صورة الموبايل على الشاشات الكبيرة */
+@media (min-width: 992px) {
+  .mobile-image-container {
+    display: none;
+  }
+}
+
+/* صورة الديسكتوب (للشاشات الكبيرة فقط) */
+.desktop-image-container {
+  position: relative;
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .desktop-image-container {
+    display: block;
+    width: 40.33%;
+    position: relative;
+  }
+  .desktop-image-container img {
+    width: 100%;
+    height: 145vh;
+    object-fit: cover;
+  }
+}
+
+/* الحاوية الرئيسية للشاشات الكبيرة: تقسيم الصفحة إلى عمودين */
+.main-desktop {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* قسم النموذج */
+.form-container {
+  width: 100%;
+  padding: 20px;
+  margin: 20px;
+}
+
+@media (min-width: 992px) {
+  .form-container {
+    width: 52.67%;
+  }
+}
+
+.form-wrapper {
+  background: transparent;
+  padding: 0;
+  margin: 0;
+}
+
+.form-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.form-header h1 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.form-header h1 span.white {
+  color: #fff;
+}
+
+.form-header h1 span.blue {
+  color: #3498db;
+}
+
+.form-header p {
+  font-size: 15px;
+  color: #ccc;
+}
+
+/* تقسيم الحقول في صفوف */
+.row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.row .form-group {
+  flex: 1;
+  position: relative;
+}
+
+/* الحقول الكاملة العرض */
+.form-group {
+  position: relative;
+  margin-bottom: 25px;
+}
+
+.row.small-gap {
+  margin-bottom: 10px;
+}
+
+/* تصميم الحقول بخط سفلي وتأثير حركة عند التركيز */
+.form-control,
+.governorate-select {
+  width: 100%;
+  padding: 12px;
+  padding-right: 40px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #555;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  text-align: right;
+  transition: border-bottom-color 0.3s, transform 0.3s;
+}
+
+.form-control:focus,
+.governorate-select:focus {
+  border-bottom-color: #3498db;
+  transform: scale(1.02);
+}
+
+.form-control::placeholder,
+.governorate-select::placeholder {
+  color: transparent;
+}
+
+/* التسمية العائمة */
+.form-label {
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: all 0.2s ease;
+  color: #aaa;
+  pointer-events: none;
+  font-size: 20px;
+}
+
+.form-control:focus ~ .form-label,
+.form-control:not(:placeholder-shown) ~ .form-label,
+.governorate-select:focus ~ .form-label,
+.governorate-select:not(:placeholder-shown) ~ .form-label {
+  top: 0;
+  transform: translateY(-100%);
+  font-size: 15px;
+  color: #3498db;
+}
+
+/* أيقونات الحقول */
+.form-icon {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #aaa;
+  transition: all 0.2s ease;
+  pointer-events: none;
+  font-size: 16px;
+}
+
+.form-control:focus ~ .form-icon,
+.form-control:not(:placeholder-shown) ~ .form-icon {
+  color: #3498db;
+  transform: translateY(-55%);
+}
+
+/* إعدادات القائمة المنسدلة للمحافظات */
+.governorate-select-wrapper {
+  position: relative;
+  margin: 1rem 0;
+  width: 100%;
+}
+
+.governorate-select {
+  width: 100%;
+  padding: 12px 40px 12px 15px;
+  border: 2px solid #374151;
+  border-radius: 8px;
+  background-color: #111827;
+  color: #fff;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  text-align: right;
+  direction: rtl;
+}
+
+/* إصلاح مشكلة التسمية العائمة للقائمة */
+.governorate-select-wrapper .form-label {
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  background: transparent;
+  font-size: 14px;
+}
+
+.governorate-select:focus + .form-label,
+.governorate-select:valid + .form-label {
+  top: -10px;
+  font-size: 12px;
+  color: #3b82f6;
+  background: linear-gradient(to bottom, #111827 50%, transparent 50%);
+}
+
+/* إصلاح موضع الأيقونة للقائمة */
+.governorate-select-wrapper .form-icon {
+  left: auto;
+  right: 15px;
+  color: #6b7280;
+}
+
+/* إصلاح سهم الاختيار للقائمة */
+.governorate-select-wrapper::after {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: #fff transparent transparent transparent;
+  transition: transform 0.3s ease;
+}
+
+/* توافق مع التصميم الأصلي عند التركيز */
+.governorate-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  transform: none;
+}
+
+/* تخصيص شريط التمرير للقائمة */
+.governorate-select::-webkit-scrollbar {
+  width: 8px;
+}
+
+.governorate-select::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.governorate-select::-webkit-scrollbar-thumb {
+  background: #3b82f6;
+  border-radius: 4px;
+}
+
+/* تحسينات خيارات القائمة */
+.governorate-select option {
+  font-size: 16px;
+  padding: 16px 20px;
+  line-height: 1.6;
+  border-bottom: 1px solid #2d3748;
+  transition: all 0.2s ease;
+  direction: rtl;
+  text-align: right;
+}
+
+.governorate-select option:hover {
+  background: #3b82f6 !important;
+  color: #fff !important;
+  transform: scale(1.02);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.governorate-select option:checked {
+  background: #1d4ed8 !important;
+  font-weight: bold;
+  position: relative;
+}
+
+/* تخصيص تمرير القائمة بشكل إضافي */
+.governorate-select::-webkit-scrollbar {
+  width: 10px;
+}
+
+.governorate-select::-webkit-scrollbar-thumb {
+  background: #3b82f6;
+  border-radius: 8px;
+  border: 2px solid #1f2937;
+}
+
+.governorate-select::-webkit-scrollbar-track {
+  background: #1f2937;
+  border-radius: 8px;
+}
+
+.governorate-select option:focus {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
+}
+
+/* زر "طلب إنشاء حساب" */
+.submit-btn {
+  width: 180px;
+  padding: 16px 0;
+  background-color: #007aff;
+  border: 2px solid transparent;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  margin-right: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.submit-btn:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+  background-color: rgba(0, 122, 255, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.submit-btn:active {
+  border-color: #1d4ed8;
+  color: #1d4ed8;
+  background-color: rgba(29, 78, 216, 0.05);
+  transform: translateY(0);
+}
+
+/* زر الفيديو */
+.video-btn {
+  width: 180px;
+  padding: 16px 0;
+  background-color: #f39c12;
+  border: 2px solid transparent;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.video-btn:hover {
+  border-color: #f59e0b;
+  color: #f59e0b;
+  background-color: rgba(243, 156, 18, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}
+
+.video-btn:active {
+  border-color: #d97706;
+  color: #d97706;
+  background-color: rgba(217, 119, 6, 0.05);
+  transform: translateY(0);
+}
+
+/* تأثير الإضاءة الداخلية على الأزرار */
+.submit-btn::before,
+.video-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 2px solid transparent;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.submit-btn:hover::before {
+  border-color: #3b82f6;
+}
+
+.video-btn:hover::before {
+  border-color: #f59e0b;
+}
+
+/* رابط تسجيل الدخول */
+.login-link {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.login-link span {
+  color: #6b7280;
+  margin-right: 5px;
+}
+
+.login-link a {
+  color: #f1c40f;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* تذييل الصفحة */
+footer {
+  text-align: center;
+  padding: 10px;
+  background: transparent;
+  color: #666;
+  font-size: 12px;
+  margin-top: 20px;
+}
+
+/* ========================================================
+   التعديلات الخاصة بالشاشات الصغيرة
+   - عرض الحقول تحت بعضها
+   - تكبير حجم النموذج والعناصر ليكون العرض واضحًا
+======================================================== */
+@media (max-width: 768px) {
+  /* جعل القسم الرئيسي عمودي على الموبايل */
+  .main-desktop {
+    flex-direction: column;
+  }
+
+  /* ترتيب الحقول في صفوف لتظهر عموديًا */
+  .row {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  /* تكبير حجم الحاوية وتوسيطها */
+  .form-container {
+    width: 90%;
+    margin: 20px auto;
+    padding: 20px;
+  }
+
+  /* تكبير حجم الحقول لتحسين القراءة والتفاعل */
+  .form-control,
+  .governorate-select {
+    font-size: 16px;
+    padding: 14px;
+  }
+
+  /* جعل أزرار الإجراء بعرض كامل */
+  .submit-btn,
+  .video-btn {
+    width: 100%;
+  }
+}
+
   </style>
 </head>
 <body>
-  <!-- إشعار النجاح/الخطأ -->
-  <div id="notification" class="notification" role="alert" aria-live="assertive"></div>
-
   <!-- صورة الموبايل (للشاشات الصغيرة فقط) -->
   <div class="mobile-image-container">
-    <img src="منصة الرياضيات M r . T a r e k.jpeg" alt="صورة المنصة">
+    <img src="/home/kali/Desktop/منصة-Mr.tarek/assets/img/منصة الرياضيات M r . T a r e k.jpeg" alt="صورة المنصة">
     <div class="overlay"></div>
   </div>
 
@@ -317,7 +627,7 @@
   <div class="main-desktop">
     <!-- صورة الديسكتوب (للشاشات الكبيرة فقط) -->
     <div class="desktop-image-container">
-      <img src="منصة الرياضيات M r . T a r e k.jpeg" alt="صورة المنصة">
+      <img src="/home/kali/Desktop/منصة-Mr.tarek/assets/img/منصة الرياضيات M r . T a r e k.jpeg" alt="صورة المنصة">
       <div class="overlay"></div>
     </div>
     <!-- قسم النموذج -->
@@ -345,18 +655,27 @@
             </div>
           </div>
           <!-- صف ثاني: الاسم الثالث والاسم الأخير -->
-          <div class="row">
-            <div class="form-group">
-              <input type="text" id="third-name" class="form-control" placeholder=" " required>
-              <i class="form-icon fas fa-user"></i>
-              <label for="third-name" class="form-label">الاسم الثالث</label>
-            </div>
-            <div class="form-group">
-              <input type="text" id="last-name" class="form-control" placeholder=" " required>
-              <i class="form-icon fas fa-user"></i>
-              <label for="last-name" class="form-label">الاسم الأخير</label>
-            </div>
-          </div>
+<div class="row small-gap">
+  <div class="form-group">
+    <input type="text" id="third-name" class="form-control" placeholder=" " required>
+    <i class="form-icon fas fa-user"></i>
+    <label for="third-name" class="form-label">الاسم الثالث</label>
+  </div>
+  <div class="form-group">
+    <input type="text" id="last-name" class="form-control" placeholder=" " required>
+    <i class="form-icon fas fa-user"></i>
+    <label for="last-name" class="form-label">الاسم الأخير</label>
+  </div>
+</div>
+
+<!-- حقل اسم المستخدم -->
+<div class="form-group">
+  <input type="text" id="username" class="form-control" placeholder=" " required>
+  <i class="form-icon fas fa-user"></i>
+  <label for="username" class="form-label">اسم المستخدم</label>
+</div>
+
+
           <!-- حقل رقم الهاتف الأساسي -->
           <div class="form-group">
             <input type="tel" id="phone" class="form-control" placeholder=" " required>
@@ -455,7 +774,7 @@
         <div class="form-header">
           <h1>
             <i class="fas fa-envelope" style="color: black; margin-right: 10px;"></i>
-            <span class="white">تأكيد</span> <span class="blue">البريد الإلكتروني</span>
+            <span class="white">تأكيد</span> <span class="blue">:البريد الإلكتروني</span>
           </h1>
           <p>تم إرسال كود التأكيد إلى بريدك الإلكتروني، يرجى إدخال الكود أدناه لتأكيد حسابك.</p>
           <p style="text-align:center; color:#3498db;" id="display-code"></p>
@@ -476,45 +795,101 @@
     جميع الحقوق محفوظة © 2025 - موقعك الرسمي
   </footer>
   <script>
-    // دالة لإظهار الإشعارات مع التأثير المطلوب
-    function showNotification(message, type) {
-      const notification = document.getElementById('notification');
-      let icon = type === 'success'
-                  ? '<div class="notification-card"><i class="fas fa-check-circle" style="color:#2ecc71;"></i><p>' + message + '</p></div>'
-                  : '<div class="notification-card"><i class="fas fa-times-circle" style="color:#e74c3c;"></i><p>' + message + '</p></div>';
-      notification.innerHTML = icon;
-      notification.classList.add('active');
-      setTimeout(() => {
-        notification.classList.remove('active');
-      }, 3000);
+
+  class NotificationManager {
+    constructor() {
+        this.queue = [];
+        this.isActive = false;
     }
 
-    // توليد مسألة رياضية بسيطة (جمع)
-    let num1 = Math.floor(Math.random() * 10) + 1;
-    let num2 = Math.floor(Math.random() * 10) + 1;
-    let correctAnswer = num1 + num2;
-    document.getElementById('math-question').innerText = "كم حاصل جمع " + num1 + " + " + num2 + "؟";
+    createNotification(type, message) {
+        const notification = document.createElement('div');
+        notification.className = `notification-center notification-${type}`;
 
+        notification.innerHTML = `
+            <div class="notification-icon">
+                <svg viewBox="0 0 64 64">
+                    <circle cx="32" cy="32" r="30" fill="none" stroke-width="3"/>
+                </svg>
+                <ion-icon name="${type === 'success' ? 'checkmark' : 'close'}-outline"></ion-icon>
+            </div>
+            <h3 class="notification-title">${type === 'success' ? 'عملية ناجحة' : 'خطأ في التنفيذ'}</h3>
+            <p class="notification-message">${message}</p>
+        `;
+
+        notification.addEventListener('click', () => this.dismiss());
+        return notification;
+    }
+
+    showNotification(type, message, duration = 3000) {
+        if (this.isActive) {
+            this.queue.push({ type, message, duration });
+            return;
+        }
+
+        this.isActive = true;
+        this.currentNotification = this.createNotification(type, message);
+        document.body.appendChild(this.currentNotification);
+
+        setTimeout(() => {
+            this.currentNotification.classList.add('active');
+        }, 50);
+
+        setTimeout(() => this.dismiss(), duration);
+    }
+
+    dismiss() {
+        if (!this.currentNotification) return;
+
+        this.currentNotification.classList.remove('active');
+        setTimeout(() => {
+            this.currentNotification.remove();
+            this.isActive = false;
+            this.processQueue();
+        }, 400);
+    }
+
+    processQueue() {
+        if (this.queue.length > 0) {
+            const next = this.queue.shift();
+            this.showNotification(next.type, next.message, next.duration);
+        }
+    }
+}
+
+// تهيئة النظام
+const notificationSystem = new NotificationManager();
+
+// دالة الاستخدام العامة
+function showNotification(type, message, duration) {
+    notificationSystem.showNotification(type, message, duration);
+}
+
+    // توليد مسألة رياضية بسيطة (جمع)
+function generateMathProblem() {
+  num1 = Math.floor(Math.random() * 10) + 1;
+  num2 = Math.floor(Math.random() * 10) + 1;
+  correctAnswer = num1 + num2;
+  document.getElementById('math-question').innerText = `كم حاصل جمع ${num1} + ${num2}؟`;
+}
+
+// استدعاء الدالة عند التحميل وعند كل إرسال
+document.addEventListener('DOMContentLoaded', generateMathProblem);
     // معالجة إرسال نموذج التسجيل
     document.getElementById('signup-form').addEventListener('submit', function(e) {
       e.preventDefault();
       // التحقق من إجابة المسألة الرياضية
       let userAnswer = parseInt(document.getElementById('math-answer').value);
-      if (userAnswer !== correctAnswer) {
-        showNotification("إجابة المسألة الرياضية غير صحيحة.", "error");
-        return;
-      }
-      // التحقق من تطابق كلمة المرور مع تأكيدها
-      let password = document.getElementById('password').value;
-      let confirmPassword = document.getElementById('confirm-password').value;
-      if (password !== confirmPassword) {
-        showNotification("كلمة المرور وتأكيدها غير متطابقين.", "error");
-        return;
-      }
+// في دالة submit event listener
+if (userAnswer !== correctAnswer) {
+  showNotification("error", "إجابة المسألة الرياضية غير صحيحة.");
+  return;
+}
+
       // محاكاة إرسال كود التأكيد عبر البريد الإلكتروني
       let confirmationCode = Math.floor(Math.random() * 900000) + 100000;
       document.getElementById('display-code').innerText = "كود التأكيد: " + confirmationCode;
-      showNotification("تم إرسال كود التأكيد إلى بريدك الإلكتروني.", "success");
+      showNotification("success", "تم إرسال كود التأكيد إلى بريدك الإلكتروني.");
       // إخفاء صفحة التسجيل وإظهار صفحة تأكيد البريد الإلكتروني
       document.getElementById('registration-page').style.display = 'none';
       document.getElementById('email-confirmation-page').style.display = 'block';
@@ -525,10 +900,10 @@
     document.getElementById('confirm-btn').addEventListener('click', function() {
       let userCode = document.getElementById('confirmation-code').value;
       if (userCode == window.generatedCode) {
-        showNotification("تم تأكيد البريد الإلكتروني بنجاح!", "success");
+        showNotification("success", "تم تأكيد البريد الإلكتروني بنجاح!");
         document.getElementById('confirmation-success').style.display = 'block';
       } else {
-        showNotification("كود التأكيد غير صحيح.", "error");
+        showNotification("error", "كود التأكيد غير صحيح.");
       }
     });
   </script>
